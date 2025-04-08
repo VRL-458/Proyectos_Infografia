@@ -18,7 +18,8 @@ local scene = composer.newScene()
 
 
 local musicaFondo = audio.loadStream("audio/Defqwop - Awakening.mp3")
-local musicaChannel = audio.play(musicaFondo, {loops = -1, fadein = 5000}) 
+local musicaChannel
+
 
 
 
@@ -63,14 +64,20 @@ end
 
 --function
 function girarPieza(event)
-    local pieza = event.target
-    pieza:removeEventListener("touch", girarPieza)
-    local pieza = event.target 
-    pieza:rotate(90)
-    print("rotacion: "..pieza.rotation)
-    timer.performWithDelay( 500, function() 
-        pieza:addEventListener("touch", girarPieza) 
-    end)
+    --por mases tipo lo de mover a menu, o usar el tap, envez del touch
+    if event.phase == "ended" then
+        local pieza = event.target
+        --pieza:removeEventListener("touch", girarPieza)
+        local pieza = event.target 
+        pieza:rotate(90)
+        print("rotacion: "..pieza.rotation)
+        
+        --[[ esto era del anterior, pero no es necesario, ya se usa event.phase = "ended"
+        timer.performWithDelay( 500, function() 
+            pieza:addEventListener("touch", girarPieza) 
+        end)
+        ]]--
+    end
     return true  
 end
 
@@ -97,7 +104,7 @@ function revisorResultado(event, solucion)
                 end
             end
         end
-        
+        composer.removeScene("victory")
         gotoVictory(event)
     end
     return true
@@ -196,6 +203,7 @@ function scene:show( event )
     local nivel1_piezas = event.params.piezas
     
     if ( phase == "will" ) then
+        musicaChannel = audio.play(musicaFondo, {loops = -1, fadein = 5000}) 
         dibujarFiguras(sceneGroup, nivel1_piezas, solucion)
         randomgiro()
         -- Code here runs when the scene is still off screen (but is about to come on screen)
@@ -214,19 +222,21 @@ function scene:hide( event )
     local phase = event.phase
  
     if ( phase == "will" ) then
-        for i = 1, #piezas_obj do
+        
+        for i = #piezas_obj, 1, -1 do
             local pieza = piezas_obj[i]
             if pieza then
-                pieza:removeSelf() -- Eliminar la pieza de la pantalla
-                pieza = nil -- Limpiar la referencia
+                pieza:removeSelf()
+                piezas_obj[i] = nil
             end
         end
+        
         audio.stop(musicaChannel)
-      
         
         -- Code here runs when the scene is on screen (but is about to go off screen)
  
     elseif ( phase == "did" ) then
+      
         -- Code here runs immediately after the scene goes entirely off screen
  
     end
@@ -237,7 +247,7 @@ end
 function scene:destroy( event )
  
     local sceneGroup = self.view
-    
+    audio.stop(musicaChannel)
     -- Code here runs prior to the removal of scene's view
  
 end

@@ -9,11 +9,11 @@ local scene = composer.newScene()
 
 local musicaFondo = audio.loadStream("audio/intro.mp3")
 local musicaChannel
-  -- Repite indefinidamente con un desvanecimiento al iniciar
+
 
 local cw = display.safeActualContentWidth
 local ch = display.safeActualContentHeight
-local indice = 1  -- Inicializamos el índice en 1 para la escena actual
+local indice = 1  
 
 local siguiente
 local nivel_text
@@ -41,7 +41,8 @@ local solucion3 = {180,90,{0,180}, 270,180,0,180,180,{270,90},90,270,{270,90}, 9
 -- create()
 function goToLevel(self, e)
     if e.phase == "ended" then
-        composer.removeScene("juego")
+        -- 
+        --composer.removeScene("juego")
 
         local params = {}
         if indice == 1 then
@@ -81,15 +82,13 @@ function niveles(event)
     siguiente:removeEventListener("touch", niveles)
     -- Incrementar el nivel
     if indice > 2 then
-        indice = 1  -- Si el nivel es mayor que 3, se reinicia a 1
+        indice = 1  
     else
-        indice = indice + 1  -- Si no, se incrementa el nivel
+        indice = indice + 1  
     end
 
-    -- Actualizar el texto
     nivel_text.text = "Nivel " .. indice  
 
-    -- Volver a habilitar el botón después de un breve retraso para el siguiente clic
     timer.performWithDelay( 500, function() 
         siguiente:addEventListener("touch", niveles) 
     end)
@@ -115,7 +114,7 @@ function scene:create( event )
 
     -- Mostrar el texto del nivel
     nivel_text = display.newText(sceneGroup, "Nivel " .. indice, cw/2 , ch/2-400, native.systemFont, 200)  
-    nivel_text:setFillColor(0) -- Color del texto
+    nivel_text:setFillColor(1) -- Color del texto
     -- Crear botón "Siguiente"
     siguiente = display.newImageRect(sceneGroup, "imagenes/siguiente.png", 250, 250)
     siguiente.y = ch /2 
