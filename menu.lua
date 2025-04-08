@@ -27,7 +27,7 @@ local nivel2_piezas = {
     "RAR",
     "AER",
     "RA-"
-}
+}   
 local nivel3_piezas = {
     "-RRLR",
     "AAR-R",
@@ -43,7 +43,7 @@ function goToLevel(self, e)
     if e.phase == "ended" then
         -- 
         --composer.removeScene("juego")
-
+        print("indice pasar: "..indice)
         local params = {}
         if indice == 1 then
             params = {
@@ -76,24 +76,28 @@ function goToLevel(self, e)
     return true
 end
 
--- Función para actualizar el nivel
 function niveles(event)
-    -- Deshabilitar el botón para evitar múltiples clics
-    siguiente:removeEventListener("touch", niveles)
-    -- Incrementar el nivel
-    if indice > 2 then
-        indice = 1  
-    else
-        indice = indice + 1  
+    local btn_accion = event.target
+
+    if event.phase == "ended" then
+        if btn_accion.name == "siguiente" then
+            indice = indice + 1
+            if indice > 3 then
+                indice = 1
+            end
+        elseif btn_accion.name == "anterior" then
+            indice = indice - 1
+            if indice < 1 then
+                indice = 3
+            end
+        end
+        print("niveles: "..indice)
+        nivel_text.text = "Nivel " .. indice
     end
 
-    nivel_text.text = "Nivel " .. indice  
-
-    timer.performWithDelay( 500, function() 
-        siguiente:addEventListener("touch", niveles) 
-    end)
     return true
 end
+
 
 function scene:create( event )
     local sceneGroup = self.view
@@ -119,9 +123,19 @@ function scene:create( event )
     siguiente = display.newImageRect(sceneGroup, "imagenes/siguiente.png", 250, 250)
     siguiente.y = ch /2 
     siguiente.x = (display.contentWidth / 2) + 400
- 
+    
+    -- Crear botón "Anterior" 
+    anterior = display.newImageRect(sceneGroup, "imagenes/siguiente.png", 250, 250)
+    anterior.name = "anterior"
+    anterior:rotate(180)
+    anterior.y = ch /2 
+    anterior.x = (display.contentWidth / 2) - 400  
+
+
     -- Asignar el evento al botón "Siguiente"
-    siguiente:addEventListener("touch", niveles)  -- Ahora el evento se asigna correctamente
+    siguiente.name = "siguiente"
+    siguiente:addEventListener("touch", niveles) --siguente nivel
+    anterior:addEventListener("touch", niveles) --nivel anterior
 
 end
 

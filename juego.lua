@@ -15,16 +15,20 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
  
 -- create() 
-
-
 local musicaFondo = audio.loadStream("audio/Defqwop - Awakening.mp3")
 local musicaChannel
 
 
+local nivel
+local solucion
+local piezas
+local cw = display.safeActualContentWidth
+local ch = display.safeActualContentHeight
+local nivel_text
 
 
 
-piezas_obj = {}
+local piezas_obj = {}
 --[[
 arco = A
 rueda = R
@@ -64,7 +68,7 @@ end
 
 --function
 function girarPieza(event)
-    --por mases tipo lo de mover a menu, o usar el tap, envez del touch
+    --si no se quiere usar eventos touch y gestion con eventos, usar el tap
     if event.phase == "ended" then
         local pieza = event.target
         --pieza:removeEventListener("touch", girarPieza)
@@ -100,11 +104,12 @@ function revisorResultado(event, solucion)
                 -- Si la solución no es un comodín ("i") y no coincide con la rotación
                 if pieza.rotation % 360 ~= solucionActual then
                     print("No es correcto")
-                    return false
+                    return false    
                 end
             end
         end
         composer.removeScene("victory")
+        
         gotoVictory(event)
     end
     return true
@@ -154,67 +159,67 @@ function dibujarFiguras(screen, nivel1_piezas)
 end
 
 
-function scene:create( event )
+function scene:create(event)
     local sceneGroup = self.view
-    
 
-    local nivel = event.params.nivel -- Obtener el nivel desde los parámetros de la escena
-    local solucion = event.params.solucion
-   
-    -- Ajustar tamaño real de la pantalla incluyendo áreas seguras
-    local cw = display.safeActualContentWidth
-    local ch = display.safeActualContentHeight
-    print(cw, ch)
     local fondo = display.newImageRect(sceneGroup, "imagenes/fondojuego.jpg", cw, ch)
-
-    -- Asegurar que el fondo cubra todo y esté bien centrado
+    nivel = event.params.nivel
     fondo.x = display.contentCenterX
     fondo.y = display.contentCenterY
 
-    local niveltext = display.newText(sceneGroup, "Nivel "..nivel, cw/2, ch/2, native.systemFont, 150) 
-    niveltext:setFillColor(0) --color del texto
-    niveltext.x = cw/2
-    niveltext.y =  200
+    -- Asegúrate de usar el mismo nombre: 'niveltext'
+    niveltext = display.newText(sceneGroup, "Nivel " .. nivel, cw / 2, ch / 2, native.systemFont, 150)
+    niveltext:setFillColor(0)  -- Establecer color del texto
+    niveltext.x = cw / 2
+    niveltext.y = 200
     
-    local btn_check = display.newImageRect(sceneGroup, "imagenes/btn_check.png", 150, 150)
-    btn_check.x = cw/2
-    btn_check.y = 500 
-
-    --boton volver al menu
-    local btn_volver = display.newImageRect(sceneGroup, "imagenes/siguiente.png", 150, 150)
-    btn_volver:rotate(180)
-    btn_volver.x = cw/2 + 300
-    btn_volver.y = 500
-    btn_volver:addEventListener("touch", gotoMenu)
-
-    --funcion revisor "función anónima (closure"
-    btn_check:addEventListener("touch", function(event)
-        return revisorResultado(event, solucion)
-    end)
 end
 
- 
- 
--- show()
-function scene:show( event )
- 
+-- scene:show()
+function scene:show(event)
     local sceneGroup = self.view
     local phase = event.phase
-    local nivel1_piezas = event.params.piezas
+    local piezas = event.params.piezas  -- Obtener las piezas para este nivel
+    nivel = event.params.nivel  -- Mantener el nivel recibido en los parámetros
+    solucion = event.params.solucion
     
-    if ( phase == "will" ) then
-        musicaChannel = audio.play(musicaFondo, {loops = -1, fadein = 5000}) 
-        dibujarFiguras(sceneGroup, nivel1_piezas, solucion)
+
+    if (phase == "will") then
+        musicaChannel = audio.play(musicaFondo, { loops = -1 })
+
+        -- Ajustar tamaño real de la pantalla incluyendo áreas seguras
+        print(cw, ch)
+
+        -- Usar el nombre correcto de la variable: 'niveltext'
+        if niveltext then
+            niveltext.text = "Nivel " .. nivel
+        end
+
+        local btn_check = display.newImageRect(sceneGroup, "imagenes/btn_check.png", 150, 150)
+        btn_check.x = cw / 2
+        btn_check.y = 500
+
+        -- Botón para volver al menú
+        local btn_volver = display.newImageRect(sceneGroup, "imagenes/siguiente.png", 150, 150)
+        btn_volver:rotate(180)
+        btn_volver.x = cw / 2 + 300
+        btn_volver.y = 500
+        btn_volver:addEventListener("touch", gotoMenu)
+
+        -- Función revisor con "función anónima" (closure)
+        btn_check:addEventListener("touch", function(event)
+            return revisorResultado(event, solucion)
+        end)
+
+        -- Dibujar contenido dinámico dependiendo del nivel
+        dibujarFiguras(sceneGroup, piezas)
         randomgiro()
-        -- Code here runs when the scene is still off screen (but is about to come on screen)
- 
-    elseif ( phase == "did" ) then
-        -- Code here runs when the scene is entirely on screen
- 
+
+    elseif (phase == "did") then
+        -- Aquí puedes agregar cualquier animación o lógica adicional después de que la escena esté completamente visible
     end
 end
- 
- 
+
 -- hide()
 function scene:hide( event )
  
@@ -222,7 +227,7 @@ function scene:hide( event )
     local phase = event.phase
  
     if ( phase == "will" ) then
-        
+      
         for i = #piezas_obj, 1, -1 do
             local pieza = piezas_obj[i]
             if pieza then
@@ -230,8 +235,8 @@ function scene:hide( event )
                 piezas_obj[i] = nil
             end
         end
-        
         audio.stop(musicaChannel)
+        
         
         -- Code here runs when the scene is on screen (but is about to go off screen)
  
@@ -240,14 +245,14 @@ function scene:hide( event )
         -- Code here runs immediately after the scene goes entirely off screen
  
     end
-end
+end 
  
  
 -- destroy()
 function scene:destroy( event )
  
     local sceneGroup = self.view
-    audio.stop(musicaChannel)
+    
     -- Code here runs prior to the removal of scene's view
  
 end
