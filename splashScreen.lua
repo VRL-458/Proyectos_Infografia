@@ -24,8 +24,6 @@ function scene:create( event )
 
     local text_inicio = display.newText(sceneGroup, "LEO STUDIO", cw / 2, ch/2, native.systemFont, 220) 
     text_inicio:setFillColor(0) --color del texto
-   -- transition.to(fondo, {time=1000, delay=5000, onComplete = goToMenu})
---    sceneGroup:insert(fondo)
     timer.performWithDelay(4000, goToMenu)
 
 end

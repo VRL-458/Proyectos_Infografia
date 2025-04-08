@@ -41,7 +41,6 @@ local solucion3 = {180,90,{0,180}, 270,180,0,180,180,{270,90},90,270,{270,90}, 9
 -- create()
 function goToLevel(self, e)
     if e.phase == "ended" then
-        -- 
         --composer.removeScene("juego")
         print("indice pasar: "..indice)
         local params = {}
@@ -130,6 +129,7 @@ function scene:create( event )
     anterior:rotate(180)
     anterior.y = ch /2 
     anterior.x = (display.contentWidth / 2) - 400  
+    
 
 
     -- Asignar el evento al botón "Siguiente"

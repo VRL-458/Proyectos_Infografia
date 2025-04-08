@@ -48,7 +48,7 @@ img_path= {
 function gotoMenu(event)
     if event.phase == "ended" then
         local options = {effect = "fade", time = 1000}
-        composer.gotoScene( "menu")
+        composer.gotoScene( "menuPrinc")
     end
 end
 
@@ -102,7 +102,7 @@ function revisorResultado(event, solucion)
                 end
             elseif solucionActual ~= "i" then
                 -- Si la solución no es un comodín ("i") y no coincide con la rotación
-                if pieza.rotation % 360 ~= solucionActual then
+                if pieza.rotation % 360 ~= solucionActual and solucionActual ~= "i" then
                     print("No es correcto")
                     return false    
                 end
@@ -167,9 +167,9 @@ function scene:create(event)
     fondo.x = display.contentCenterX
     fondo.y = display.contentCenterY
 
-    -- Asegúrate de usar el mismo nombre: 'niveltext'
+
     niveltext = display.newText(sceneGroup, "Nivel " .. nivel, cw / 2, ch / 2, native.systemFont, 150)
-    niveltext:setFillColor(0)  -- Establecer color del texto
+    niveltext:setFillColor(0) 
     niveltext.x = cw / 2
     niveltext.y = 200
     
@@ -179,8 +179,8 @@ end
 function scene:show(event)
     local sceneGroup = self.view
     local phase = event.phase
-    local piezas = event.params.piezas  -- Obtener las piezas para este nivel
-    nivel = event.params.nivel  -- Mantener el nivel recibido en los parámetros
+    local piezas = event.params.piezas  
+    nivel = event.params.nivel 
     solucion = event.params.solucion
     
 
@@ -194,7 +194,11 @@ function scene:show(event)
         if niveltext then
             niveltext.text = "Nivel " .. nivel
         end
-
+        local reinicio = display.newImageRect(sceneGroup, "imagenes/siguiente.png", 150, 150)
+        reinicio.x = cw / 2 - 300
+        reinicio.y = 500 
+        reinicio:rotate(90)
+        reinicio:addEventListener("touch", randomgiro)
         local btn_check = display.newImageRect(sceneGroup, "imagenes/btn_check.png", 150, 150)
         btn_check.x = cw / 2
         btn_check.y = 500
